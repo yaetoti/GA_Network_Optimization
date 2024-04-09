@@ -53,7 +53,7 @@ struct PortDistributor final {
    */
   static std::vector<size_t> RandomDistribution(size_t routers, size_t ports, double offset, std::mt19937_64& rng, std::uniform_real_distribution<>& dist) {
     // Handle exceptional cases
-    assert(routers > ports);
+    assert(routers <= ports);
     if (routers == ports) {
       return std::vector<size_t>(routers, 1);
     }

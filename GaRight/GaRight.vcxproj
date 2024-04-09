@@ -157,7 +157,9 @@
   <ItemGroup>
     <ClInclude Include="Host.h" />
     <ClInclude Include="Individual.h" />
+    <ClInclude Include="Matrix.h" />
     <ClInclude Include="PortDistributor.h" />
+    <ClInclude Include="TopologyInputGenerator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
