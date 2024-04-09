@@ -1,0 +1,3 @@
+[submodule "ConsoleLib"]
+	path = ConsoleLib
+	url = ./ConsoleLib
