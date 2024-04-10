@@ -88,4 +88,82 @@ struct TopologyConfiguration final {
       std::move(channelLoadMatrix)
     };
   }
+
+  static TopologyConfiguration Cross(const TopologyInput& input, const TopologyConfiguration& lhs, const TopologyConfiguration& rhs, TopologyRandom& random) {
+    // Cross membership table (Uniform crossover)
+    std::vector<size_t> membershipTable;
+    membershipTable.reserve(input.hosts);
+
+    for (size_t i = 0; i < input.hosts; ++i) {
+      if (random.dist(random.rng) > 0.5) {
+        membershipTable.emplace_back(lhs.membershipTable.at(i));
+      }
+      else {
+        membershipTable.emplace_back(rhs.membershipTable.at(i));
+      }
+    }
+
+    // Cross router type table (Uniform crossover)
+    std::vector<RouterType> routerTypeTable;
+    routerTypeTable.reserve(input.routers);
+
+    for (size_t i = 0; i < input.routers; ++i) {
+      if (random.dist(random.rng) > 0.5) {
+        routerTypeTable.emplace_back(lhs.routerTypeTable.at(i));
+      }
+      else {
+        routerTypeTable.emplace_back(rhs.routerTypeTable.at(i));
+      }
+    }
+
+    // Create new configuration
+    auto subnetworkTable = TopologyGenerator::CreateSubnetworkTable(input.hosts, input.routers, membershipTable);
+    auto loadMatrix = TopologyGenerator::CreateLoadMatrix(input.hosts, input.routers, {
+        input.trafficMatrix,
+        subnetworkTable,
+        routerTypeTable
+      });
+
+    return TopologyConfiguration {
+      std::move(membershipTable),
+      std::move(subnetworkTable),
+      std::move(routerTypeTable),
+      std::move(loadMatrix)
+    };
+  }
+
+  static TopologyConfiguration Mutate(const TopologyInput& input, double probability, const TopologyConfiguration& conf, TopologyRandom& random) {
+    // Mutate membership table
+    std::vector<size_t> membershipTable = conf.membershipTable;
+
+    for (size_t i = 0; i < input.hosts; ++i) {
+      if (random.dist(random.rng) <= probability) {
+        membershipTable[i] = random.rng() % input.routers;
+      }
+    }
+
+    // Mutate router type table
+    std::vector<RouterType> routerTypeTable = conf.routerTypeTable;
+
+    for (size_t i = 0; i < input.routers; ++i) {
+      if (random.dist(random.rng) <= probability) {
+        routerTypeTable[i] = static_cast<RouterType>(random.rng() % static_cast<size_t>(RouterType::COUNT));
+      }
+    }
+
+    // Create new configuration
+    auto subnetworkTable = TopologyGenerator::CreateSubnetworkTable(input.hosts, input.routers, membershipTable);
+    auto loadMatrix = TopologyGenerator::CreateLoadMatrix(input.hosts, input.routers, {
+        input.trafficMatrix,
+        subnetworkTable,
+        routerTypeTable
+      });
+
+    return TopologyConfiguration {
+      std::move(membershipTable),
+      std::move(subnetworkTable),
+      std::move(routerTypeTable),
+      std::move(loadMatrix)
+    };
+  }
 };
