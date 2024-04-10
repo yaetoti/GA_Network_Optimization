@@ -59,6 +59,10 @@ struct Matrix {
     return m_height;
   }
 
+  const std::vector<T>& GetData() const {
+    return m_data;
+  }
+
 protected:
   size_t m_width;
   size_t m_height;

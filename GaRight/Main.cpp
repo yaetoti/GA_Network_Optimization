@@ -7,8 +7,9 @@
 #include <Windows.h>
 #include <ConsoleLib/Console.h>
 
-double CalculateFitness(const TopologyInput& input, const TopologyConfiguration& configuration) {
-  return 0.0;
+double CalculateFitness(const TopologyInput& input, const TopologyConfiguration& conf) {
+  const auto& loadData = conf.channelLoadMatrix.GetData();
+  return 1.0 / std::accumulate(loadData.begin(), loadData.end(), static_cast<size_t>(0), std::plus());
 }
 
 struct Individual final {
@@ -40,6 +41,19 @@ struct Individual final {
       random,
       TopologyConfiguration::Mutate(input, probability, individual.m_configuration, random)
     };
+  }
+
+  const TopologyConfiguration& GetConfiguration() const {
+    return m_configuration;
+  }
+
+  double GetFitness() const {
+    return m_fitness;
+  }
+
+  friend std::ostream& operator<<(std::ostream& os, const Individual& obj) {
+    os << obj.GetConfiguration() << "Fitness:\n  " << obj.GetFitness() << '\n';
+    return os;
   }
 
 private:
@@ -75,16 +89,16 @@ int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int) {
   };
   std::cout << input << '\n';
 
-  TopologyConfiguration conf1 = TopologyConfiguration::CreateRandom(input, random);
-  TopologyConfiguration conf2 = TopologyConfiguration::CreateRandom(input, random);
-  std::cout << conf1 << '\n';
-  std::cout << conf2 << '\n';
+  Individual i1(input, random);
+  Individual i2(input, random);
+  std::cout << i1 << '\n';
+  std::cout << i2 << '\n';
 
-  TopologyConfiguration crossed = TopologyConfiguration::Cross(input, conf1, conf2, random);
+  Individual crossed = Individual::Cross(input, i1, i2, random);
   std::cout << "Crossed:\n";
   std::cout << '\n' << crossed << '\n';
 
-  TopologyConfiguration mutated = TopologyConfiguration::Mutate(input, 0.1, crossed, random);
+  Individual mutated = Individual::Mutate(input, 0.1, crossed, random);
   std::cout << "Mutated:\n";
   std::cout << '\n' << mutated << '\n';
 
