@@ -160,12 +160,13 @@ int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int) {
   std::random_device device;
   std::mt19937_64 generator(device());
   std::uniform_real_distribution<float> distribution;
-  const size_t populationSize = 10;
+  const size_t populationSize = 50;
   size_t iteration = 0;
 
   // Initialize population
   std::vector<Individual> population;
   population.reserve(populationSize);
+
   for (size_t i = 0; i < populationSize; ++i) {
     population.emplace_back((distribution(device) - 0.5f) * 200.0f);
   }
@@ -175,7 +176,7 @@ int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int) {
   do {
     // Roulette select
     std::vector<Individual> pool = RouletteSelect(population, device, distribution);
-    population = DoSelection(pool, 0.01f, device, generator, distribution);
+    population = DoSelection(pool, 0.05f, device, generator, distribution);
     std::ranges::sort(population, GreaterFitnessComparator());
 
     ++iteration;

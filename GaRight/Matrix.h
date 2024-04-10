@@ -30,12 +30,12 @@ struct Matrix {
   }
 
   T& At(size_t row, size_t col) {
-    assert(row >= m_width || col >= m_height);
+    assert(row < m_width && col < m_height);
     return m_data.at(m_width * col + row);
   }
 
   const T& At(size_t row, size_t col) const {
-    assert(row >= m_width || col >= m_height);
+    assert(row < m_width && col < m_height);
     return m_data.at(m_width * col + row);
   }
 
@@ -84,7 +84,7 @@ struct SymmetricalMatrix final : Matrix<T> {
   }
 
   void Set(size_t row, size_t col, const T& value) {
-    assert(row >= Matrix<T>::m_width || col >= Matrix<T>::m_height);
+    assert(row < Matrix<T>::m_width && col < Matrix<T>::m_height);
     Matrix<T>::At(row, col) = value;
     Matrix<T>::At(col, row) = value;
   }
