@@ -6,6 +6,11 @@
 
 template <typename T>
 struct Matrix {
+  Matrix()
+    : m_width(0)
+    , m_height(0) {
+  }
+
   explicit Matrix(size_t width, size_t height)
     : m_width(width)
     , m_height(height)
@@ -62,6 +67,10 @@ protected:
 
 template <typename T>
 struct SymmetricalMatrix final : Matrix<T> {
+  SymmetricalMatrix()
+  : Matrix<T>() {
+  }
+
   explicit SymmetricalMatrix(size_t size)
   : Matrix<T>(size, size) {
   }

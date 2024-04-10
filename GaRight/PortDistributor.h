@@ -169,7 +169,7 @@ private:
 #if 1
     // Generate and print
     std::vector<size_t> portsCount = RandomDistribution(routersCount, hostsCount, maxOffset, rng, dist);
-    std::cout << "PortsCount: " << std::accumulate(portsCount.begin(), portsCount.end(), 0, std::plus()) << '\n';
+    std::cout << "PortsCount: " << std::accumulate(portsCount.begin(), portsCount.end(), static_cast<size_t>(0), std::plus()) << '\n';
     for (size_t count : portsCount) {
       std::cout << count << '\n';
     }
