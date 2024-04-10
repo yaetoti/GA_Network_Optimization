@@ -94,7 +94,7 @@ int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int) {
     routersCount,
     PortDistributor::RandomDistribution(routersCount, hostsCount, minOffset, random.rng, random.dist),
     TopologyInputGenerator::CreateTrafficMatrix(hostsCount, { 0.5, 4500, 500 }, random.rng, random.dist),
-    TopologyInputGenerator::CreateBandwidthMatrix(routersCount, { 20000, 3000 }, random.rng)
+    TopologyInputGenerator::CreateBandwidthMatrix(routersCount, { 50000, 30000 }, random.rng)
   };
   std::cout << input << '\n';
 
@@ -116,7 +116,7 @@ int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int) {
   while (population[0].GetFitness() != std::numeric_limits<double>::infinity()) {
     // Roulette select
     std::vector<Individual> pool = RouletteSelect(population, random);
-    population = DoSelection(input, pool, 0.01f, random);
+    population = DoSelection(input, pool, 1.0 / populationSize, random);
     std::ranges::sort(population, GreaterFitnessComparator());
 
     ++iteration;

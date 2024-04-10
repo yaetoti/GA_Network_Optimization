@@ -77,6 +77,8 @@ struct Individual final {
   friend std::ostream& operator<<(std::ostream& os, const Individual& obj) {
     os << obj.GetConfiguration();
     os << "Fitness:\n  " << obj.GetFitness() << '\n';
+    os << "Port penalty:\n  " << CalculatePortPenalty(obj.m_input, obj.m_configuration) << '\n';
+    os << "Difference:\n  " << CalculateTrafficDifference(obj.m_input, obj.m_configuration) << '\n';
     os << "Traffic:\n  " << CalculateTraffic(obj.m_input, obj.m_configuration) << '\n';
     return os;
   }
@@ -86,7 +88,39 @@ struct Individual final {
     return std::accumulate(loadData.begin(), loadData.end(), static_cast<size_t>(0), std::plus());
   }
 
+  static size_t CalculateTrafficDifference(const TopologyInput& input, const TopologyConfiguration& conf) {
+    const auto& loadData = conf.channelLoadMatrix;
+    const auto& bandwidthData = input.bandwidthMatrix;
+    // Calculate sum|Ti-Bi|
+    size_t accumulated = 0;
+    for (size_t row = 0; row < input.routers; ++row) {
+      for (size_t col = row + 1; col < input.routers; ++col) {
+        // Avoid ULL type casting
+        size_t traffic = loadData.At(row, col) + loadData.At(col, row);
+        size_t bandwidth = bandwidthData.At(row, col);
+        accumulated += std::max(traffic, bandwidth) - std::min(traffic, bandwidth);
+      }
+    }
+
+    return accumulated;
+  }
+
+  static size_t CalculatePortPenalty(const TopologyInput& input, const TopologyConfiguration& conf) {
+    size_t overhead = 0;
+    for (size_t i = 0; i < input.routers; ++i) {
+      size_t hosts = conf.subnetworkTable[i].size();
+      size_t ports = input.portsCount[i];
+      if (hosts > ports) {
+        overhead += hosts - ports;
+      }
+    }
+
+    return overhead;
+  }
+
   static double CalculateFitness(const TopologyInput& input, const TopologyConfiguration& conf) {
+    size_t trafficDifference = CalculateTrafficDifference(input, conf);
+    return 1.0 / (trafficDifference + trafficDifference * CalculatePortPenalty(input, conf));
     return 1.0 / CalculateTraffic(input, conf);
   }
 
